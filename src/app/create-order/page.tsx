@@ -1,9 +1,7 @@
 "use client"
 
-import React from "react"
+import React, { useState, useMemo } from "react"
 
-import { useState } from "react"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,16 +9,34 @@ import { Separator } from "@/components/ui/separator"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ChevronRight, ChevronLeft, Package, Palette, Sparkles, Gift, Mail, Check } from "lucide-react"
+import { useMolds } from "@/hooks/useMolds"
+import { useScents } from "@/hooks/useScents"
+import { useColors } from "@/hooks/useColors"
+import { useBoxes } from "@/hooks/useBoxes"
+import { useCards } from "@/hooks/useCards"
 
 export default function CreateOrderPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedItems, setSelectedItems] = useState({
+    productType: "candle", // "candle" | "wax"
     mold: null as any,
     color: null as any,
     scent: null as any,
     box: null as any,
     card: null as any,
   })
+
+  // Hooks lấy dữ liệu động với useMemo để tránh fetch liên tục
+  const moldOptions = useMemo(() => ({}), [])
+  const colorOptions = useMemo(() => ({}), [])
+  const scentOptions = useMemo(() => ({}), [])
+  const boxOptions = useMemo(() => ({}), [])
+  const cardOptions = useMemo(() => ({}), [])
+  const { molds, isLoading: loadingMolds } = useMolds(moldOptions)
+  const { colors, isLoading: loadingColors } = useColors(colorOptions)
+  const { scents, isLoading: loadingScents } = useScents(scentOptions)
+  const { boxes, isLoading: loadingBoxes } = useBoxes(boxOptions)
+  const { cards, isLoading: loadingCards } = useCards(cardOptions)
 
   const steps = [
     { id: 1, name: "Chọn Khuôn", icon: Package, required: true },
@@ -30,39 +46,9 @@ export default function CreateOrderPage() {
     { id: 5, name: "Chọn Thiệp", icon: Mail, required: false },
   ]
 
-  // Sample data for each step
-  const molds = [
-    { id: 1, name: "Khuôn Tròn Cơ Bản", price: 45000, image: "/placeholder.svg?height=150&width=150" },
-    { id: 2, name: "Khuôn Hình Trái Tim", price: 65000, image: "/placeholder.svg?height=150&width=150" },
-    { id: 3, name: "Khuôn Hình Lá", price: 75000, image: "/placeholder.svg?height=150&width=150" },
-    { id: 4, name: "Khuôn Hình Hoa", price: 70000, image: "/placeholder.svg?height=150&width=150" },
-  ]
-
-  const colors = [
-    { id: 1, name: "Đỏ Cherry", code: "#DC143C", price: 25000 },
-    { id: 2, name: "Xanh Lá Tự Nhiên", code: "#6B8E23", price: 30000 },
-    { id: 3, name: "Xanh Dương Đại Dương", code: "#006994", price: 28000 },
-    { id: 4, name: "Hồng Pastel", code: "#FFB6C1", price: 32000 },
-  ]
-
-  const scents = [
-    { id: 1, name: "Tinh Dầu Lavender", price: 85000, image: "/placeholder.svg?height=150&width=150" },
-    { id: 2, name: "Tinh Dầu Bạc Hà", price: 65000, image: "/placeholder.svg?height=150&width=150" },
-    { id: 3, name: "Tinh Dầu Hoa Hồng", price: 120000, image: "/placeholder.svg?height=150&width=150" },
-    { id: 4, name: "Tinh Dầu Vanilla", price: 90000, image: "/placeholder.svg?height=150&width=150" },
-  ]
-
-  const boxes = [
-    { id: 1, name: "Hộp Giấy Kraft Eco", price: 25000, image: "/placeholder.svg?height=150&width=150" },
-    { id: 2, name: "Hộp Gỗ Tre Cao Cấp", price: 85000, image: "/placeholder.svg?height=150&width=150" },
-    { id: 3, name: "Hộp Nhựa Trong Suốt", price: 35000, image: "/placeholder.svg?height=150&width=150" },
-  ]
-
-  const cards = [
-    { id: 1, name: "Thiệp Sinh Nhật Hoa Tươi", price: 15000, image: "/placeholder.svg?height=150&width=150" },
-    { id: 2, name: "Thiệp Cảm Ơn Tối Giản", price: 12000, image: "/placeholder.svg?height=150&width=150" },
-    { id: 3, name: "Thiệp Chúc Mừng Vàng Kim", price: 20000, image: "/placeholder.svg?height=150&width=150" },
-  ]
+  const handleSelectProductType = (type: string) => {
+    setSelectedItems({ ...selectedItems, productType: type })
+  }
 
   const handleSelectItem = (category: string, item: any) => {
     setSelectedItems({ ...selectedItems, [category]: item })
@@ -98,52 +84,96 @@ export default function CreateOrderPage() {
 
   const calculateTotal = () => {
     let total = 0
-    if (selectedItems.mold) total += selectedItems.mold.price
-    if (selectedItems.color) total += selectedItems.color.price
-    if (selectedItems.scent) total += selectedItems.scent.price
-    if (selectedItems.box) total += selectedItems.box.price
-    if (selectedItems.card) total += selectedItems.card.price
+    if (selectedItems.mold && selectedItems.mold.cost) total += Number(selectedItems.mold.cost)
+    if (selectedItems.color && selectedItems.color.cost) total += Number(selectedItems.color.cost)
+    if (selectedItems.scent && selectedItems.scent.cost) total += Number(selectedItems.scent.cost)
+    if (selectedItems.box && selectedItems.box.cost) total += Number(selectedItems.box.cost)
+    if (selectedItems.card && selectedItems.card.cost) total += Number(selectedItems.card.cost)
     return total
   }
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {molds.map((mold) => (
-              <Card
-                key={mold.id}
-                className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                  selectedItems.mold?.id === mold.id ? "border-primary-600 bg-primary-50" : ""
-                }`}
-                onClick={() => handleSelectItem("mold", mold)}
-              >
-                <CardContent className="p-4">
-                  <Image
-                    src={mold.image || "/placeholder.svg"}
-                    alt={mold.name}
-                    width={150}
-                    height={150}
-                    className="w-full h-32 object-cover rounded-lg mb-3"
-                  />
-                  <h3 className="font-semibold text-sm mb-2">{mold.name}</h3>
-                  <p className="text-primary-600 font-bold">{mold.price.toLocaleString("vi-VN")}đ</p>
-                  {selectedItems.mold?.id === mold.id && (
-                    <div className="flex justify-center mt-2">
-                      <Check className="h-5 w-5 text-primary-600" />
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )
+  // Thêm hàm lưu order vào localStorage
+  const saveOrderToCart = (order: any) => {
+    if (typeof window === 'undefined') return;
+    const existing = JSON.parse(localStorage.getItem('cartOrders') || '[]');
+    // Tìm sản phẩm cùng loại (so sánh id khuôn, màu, mùi, hộp, thiệp)
+    const foundIndex = existing.findIndex((item: any) =>
+      item.name === order.name &&
+      item.components.mold === order.components.mold &&
+      item.components.color === order.components.color &&
+      item.components.scent === order.components.scent &&
+      item.components.box === order.components.box &&
+      item.components.card === order.components.card
+    );
+    if (foundIndex !== -1) {
+      existing[foundIndex].quantity = (existing[foundIndex].quantity || 1) + 1;
+    } else {
+      existing.push(order);
+    }
+    localStorage.setItem('cartOrders', JSON.stringify(existing));
+  };
 
-      case 2:
-        return (
+  const renderStepContent = () => {
+    if (currentStep === 1) {
+      // Bước chọn loại sản phẩm (nến thơm/sáp thơm)
+      return (
+        <div className="flex flex-col gap-6">
+          <div className="flex gap-4 justify-center mb-6">
+            <Button
+              variant={selectedItems.productType === "candle" ? "default" : "outline"}
+              onClick={() => handleSelectProductType("candle")}
+            >
+              Nến thơm
+            </Button>
+            <Button
+              variant={selectedItems.productType === "wax" ? "default" : "outline"}
+              onClick={() => handleSelectProductType("wax")}
+            >
+              Sáp thơm
+            </Button>
+          </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {colors.map((color) => (
+            {loadingMolds ? (
+              <div>Đang tải khuôn...</div>
+            ) : (
+              molds.map((mold) => (
+                <Card
+                  key={mold.id}
+                  className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                    selectedItems.mold?.id === mold.id ? "border-primary-600 bg-primary-50" : ""
+                  }`}
+                  onClick={() => handleSelectItem("mold", mold)}
+                >
+                  <CardContent className="p-4">
+                    <img
+                      src={mold.img_url || "/placeholder.svg"}
+                      alt={mold.name}
+                      width={150}
+                      height={150}
+                      className="w-full h-32 object-cover rounded-lg mb-3"
+                    />
+                    <h3 className="font-semibold text-sm mb-2">{mold.name}</h3>
+                    <p className="text-primary-600 font-bold">{Number(mold.cost)?.toLocaleString("vi-VN") || 0}đ</p>
+                    {selectedItems.mold?.id === mold.id && (
+                      <div className="flex justify-center mt-2">
+                        <Check className="h-5 w-5 text-primary-600" />
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </div>
+      )
+    }
+    if (currentStep === 2) {
+      return (
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {loadingColors ? (
+            <div>Đang tải màu...</div>
+          ) : (
+            colors.map((color) => (
               <Card
                 key={color.id}
                 className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
@@ -152,9 +182,15 @@ export default function CreateOrderPage() {
                 onClick={() => handleSelectItem("color", color)}
               >
                 <CardContent className="p-4">
-                  <div className="w-full h-32 rounded-lg mb-3 border" style={{ backgroundColor: color.code }} />
+                  <img
+                    src={color.img_url || "/placeholder.svg"}
+                    alt={color.name}
+                    width={150}
+                    height={150}
+                    className="w-full h-32 object-cover rounded-lg mb-3"
+                  />
                   <h3 className="font-semibold text-sm mb-2">{color.name}</h3>
-                  <p className="text-primary-600 font-bold">{color.price.toLocaleString("vi-VN")}đ</p>
+                  {/* Không có trường price/cost cho Color, có thể bỏ giá hoặc để trống */}
                   {selectedItems.color?.id === color.id && (
                     <div className="flex justify-center mt-2">
                       <Check className="h-5 w-5 text-primary-600" />
@@ -162,14 +198,18 @@ export default function CreateOrderPage() {
                   )}
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        )
-
-      case 3:
-        return (
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {scents.map((scent) => (
+            ))
+          )}
+        </div>
+      )
+    }
+    if (currentStep === 3) {
+      return (
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {loadingScents ? (
+            <div>Đang tải mùi hương...</div>
+          ) : (
+            scents.map((scent) => (
               <Card
                 key={scent.id}
                 className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
@@ -178,15 +218,15 @@ export default function CreateOrderPage() {
                 onClick={() => handleSelectItem("scent", scent)}
               >
                 <CardContent className="p-4">
-                  <Image
-                    src={scent.image || "/placeholder.svg"}
+                  <img
+                    src={scent.img_url || "/placeholder.svg"}
                     alt={scent.name}
                     width={150}
                     height={150}
                     className="w-full h-32 object-cover rounded-lg mb-3"
                   />
                   <h3 className="font-semibold text-sm mb-2">{scent.name}</h3>
-                  <p className="text-primary-600 font-bold">{scent.price.toLocaleString("vi-VN")}đ</p>
+                  {/* Không có trường price, có thể bỏ giá hoặc để trống */}
                   {selectedItems.scent?.id === scent.id && (
                     <div className="flex justify-center mt-2">
                       <Check className="h-5 w-5 text-primary-600" />
@@ -194,18 +234,22 @@ export default function CreateOrderPage() {
                   )}
                 </CardContent>
               </Card>
-            ))}
+            ))
+          )}
+        </div>
+      )
+    }
+    if (currentStep === 4) {
+      return (
+        <div>
+          <div className="text-center mb-6">
+            <p className="text-gray-600">Bước này là tuỳ chọn. Bạn có thể bỏ qua nếu không cần hộp đựng.</p>
           </div>
-        )
-
-      case 4:
-        return (
-          <div>
-            <div className="text-center mb-6">
-              <p className="text-gray-600">Bước này là tùy chọn. Bạn có thể bỏ qua nếu không cần hộp đựng.</p>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {boxes.map((box) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {loadingBoxes ? (
+              <div>Đang tải hộp...</div>
+            ) : (
+              boxes.map((box) => (
                 <Card
                   key={box.id}
                   className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
@@ -214,15 +258,15 @@ export default function CreateOrderPage() {
                   onClick={() => handleSelectItem("box", box)}
                 >
                   <CardContent className="p-4">
-                    <Image
-                      src={box.image || "/placeholder.svg"}
+                    <img
+                      src={box.img_url || "/placeholder.svg"}
                       alt={box.name}
                       width={150}
                       height={150}
                       className="w-full h-32 object-cover rounded-lg mb-3"
                     />
                     <h3 className="font-semibold text-sm mb-2">{box.name}</h3>
-                    <p className="text-primary-600 font-bold">{box.price.toLocaleString("vi-VN")}đ</p>
+                    <p className="text-primary-600 font-bold">{Number(box.cost)?.toLocaleString("vi-VN") || 0}đ</p>
                     {selectedItems.box?.id === box.id && (
                       <div className="flex justify-center mt-2">
                         <Check className="h-5 w-5 text-primary-600" />
@@ -230,19 +274,23 @@ export default function CreateOrderPage() {
                     )}
                   </CardContent>
                 </Card>
-              ))}
-            </div>
+              ))
+            )}
           </div>
-        )
-
-      case 5:
-        return (
-          <div>
-            <div className="text-center mb-6">
-              <p className="text-gray-600">Bước này là tùy chọn. Bạn có thể bỏ qua nếu không cần thiệp tặng.</p>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {cards.map((card) => (
+        </div>
+      )
+    }
+    if (currentStep === 5) {
+      return (
+        <div>
+          <div className="text-center mb-6">
+            <p className="text-gray-600">Bước này là tuỳ chọn. Bạn có thể bỏ qua nếu không cần thiệp tặng.</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {loadingCards ? (
+              <div>Đang tải thiệp...</div>
+            ) : (
+              cards.map((card) => (
                 <Card
                   key={card.id}
                   className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
@@ -251,15 +299,15 @@ export default function CreateOrderPage() {
                   onClick={() => handleSelectItem("card", card)}
                 >
                   <CardContent className="p-4">
-                    <Image
-                      src={card.image || "/placeholder.svg"}
+                    <img
+                      src={card.img_url || "/placeholder.svg"}
                       alt={card.name}
                       width={150}
                       height={150}
                       className="w-full h-32 object-cover rounded-lg mb-3"
                     />
                     <h3 className="font-semibold text-sm mb-2">{card.name}</h3>
-                    <p className="text-primary-600 font-bold">{card.price.toLocaleString("vi-VN")}đ</p>
+                    <p className="text-primary-600 font-bold">{Number(card.cost)?.toLocaleString("vi-VN") || 0}đ</p>
                     {selectedItems.card?.id === card.id && (
                       <div className="flex justify-center mt-2">
                         <Check className="h-5 w-5 text-primary-600" />
@@ -267,14 +315,13 @@ export default function CreateOrderPage() {
                     )}
                   </CardContent>
                 </Card>
-              ))}
-            </div>
+              ))
+            )}
           </div>
-        )
-
-      default:
-        return null
+        </div>
+      )
     }
+    return null
   }
 
   return (
@@ -342,34 +389,34 @@ export default function CreateOrderPage() {
                 {/* Order Summary */}
                 <div className="space-y-3">
                   <h3 className="font-semibold">Tóm Tắt Đơn Hàng</h3>
-                  {selectedItems.mold && (
-                    <div className="flex justify-between text-sm">
+                  {selectedItems.mold && selectedItems.mold.cost && (
+                    <div className="flex justify-between text -sm">
                       <span>Khuôn: {selectedItems.mold.name}</span>
-                      <span>{selectedItems.mold.price.toLocaleString("vi-VN")}đ</span>
+                      <span>{Number(selectedItems.mold.cost).toLocaleString("vi-VN")}đ</span>
                     </div>
                   )}
-                  {selectedItems.color && (
+                  {selectedItems.color && selectedItems.color.cost && (
                     <div className="flex justify-between text-sm">
                       <span>Màu: {selectedItems.color.name}</span>
-                      <span>{selectedItems.color.price.toLocaleString("vi-VN")}đ</span>
+                      <span>{Number(selectedItems.color.cost).toLocaleString("vi-VN")}đ</span>
                     </div>
                   )}
-                  {selectedItems.scent && (
+                  {selectedItems.scent && selectedItems.scent.cost && (
                     <div className="flex justify-between text-sm">
                       <span>Mùi: {selectedItems.scent.name}</span>
-                      <span>{selectedItems.scent.price.toLocaleString("vi-VN")}đ</span>
+                      <span>{Number(selectedItems.scent.cost).toLocaleString("vi-VN")}đ</span>
                     </div>
                   )}
-                  {selectedItems.box && (
+                  {selectedItems.box && selectedItems.box.cost && (
                     <div className="flex justify-between text-sm">
                       <span>Hộp: {selectedItems.box.name}</span>
-                      <span>{selectedItems.box.price.toLocaleString("vi-VN")}đ</span>
+                      <span>{Number(selectedItems.box.cost).toLocaleString("vi-VN")}đ</span>
                     </div>
                   )}
-                  {selectedItems.card && (
+                  {selectedItems.card && selectedItems.card.cost && (
                     <div className="flex justify-between text-sm">
                       <span>Thiệp: {selectedItems.card.name}</span>
-                      <span>{selectedItems.card.price.toLocaleString("vi-VN")}đ</span>
+                      <span>{Number(selectedItems.card.cost).toLocaleString("vi-VN")}đ</span>
                     </div>
                   )}
 
@@ -427,6 +474,26 @@ export default function CreateOrderPage() {
                     <Button
                       disabled={!selectedItems.mold || !selectedItems.color || !selectedItems.scent}
                       className="bg-primary-600 hover:bg-primary-700"
+                      onClick={() => {
+                        // Tạo order object
+                        const order = {
+                          id: Date.now(),
+                          name: selectedItems.productType === 'candle' ? 'Nến Thơm' : 'Sáp Thơm',
+                          components: {
+                            mold: selectedItems.mold?.name,
+                            color: selectedItems.color?.name,
+                            scent: selectedItems.scent?.name,
+                            box: selectedItems.box?.name,
+                            card: selectedItems.card?.name,
+                          },
+                          price: calculateTotal(),
+                          quantity: 1,
+                          image: selectedItems.mold?.img_url || '/placeholder.svg',
+                        };
+                        saveOrderToCart(order);
+                        // Optional: chuyển hướng sang /cart
+                        window.location.href = '/cart';
+                      }}
                     >
                       Hoàn Tất Đơn Hàng
                     </Button>

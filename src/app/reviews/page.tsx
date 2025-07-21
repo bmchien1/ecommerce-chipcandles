@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,12 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Star, ThumbsUp, MessageCircle, Filter } from "lucide-react"
+import { Star, ThumbsUp, MessageCircle, Filter, Loader2 } from "lucide-react"
+import { useReviews } from "@/hooks/useReviews"
 
 export default function ReviewsPage() {
   const [selectedFilter, setSelectedFilter] = useState("all")
-  const [newReview, setNewReview] = useState({ rating: 5, comment: "", name: "" })
-
+  const [newReview, setNewReview] = useState({ star: 5, comment: "", name: "", img_url: "" })
+  const [page, setPage] = useState(1)
+  const limit = 6
   const filterOptions = [
     { value: "all", label: "Tất Cả Đánh Giá" },
     { value: "5", label: "5 Sao" },
@@ -26,106 +27,52 @@ export default function ReviewsPage() {
     { value: "2", label: "2 Sao" },
     { value: "1", label: "1 Sao" },
   ]
+  const [uploading, setUploading] = useState(false)
 
-  const reviews = [
-    {
-      id: 1,
-      customerName: "Nguyễn Thị Hoa",
-      rating: 5,
-      date: "2024-01-15",
-      comment:
-        "Sản phẩm rất chất lượng! Màu sắc đẹp, mùi hương thơm nhẹ nhàng. Khuôn nến cũng rất dễ sử dụng. Sẽ quay lại mua thêm.",
-      productName: "Bộ làm nến lavender",
-      verified: true,
-      helpful: 12,
-      images: ["/placeholder.svg?height=100&width=100", "/placeholder.svg?height=100&width=100"],
-    },
-    {
-      id: 2,
-      customerName: "Trần Văn Nam",
-      rating: 4,
-      date: "2024-01-12",
-      comment:
-        "Khuôn nến chất lượng tốt, dễ tháo. Màu nến đẹp nhưng hơi nhạt so với mong đợi. Nhìn chung vẫn hài lòng với sản phẩm.",
-      productName: "Khuôn nến hình trái tim + Màu đỏ",
-      verified: true,
-      helpful: 8,
-      images: [],
-    },
-    {
-      id: 3,
-      customerName: "Lê Thị Mai",
-      rating: 5,
-      date: "2024-01-10",
-      comment: "Tuyệt vời! Hộp đựng rất đẹp và chắc chắn. Thiệp tặng kèm cũng rất xinh. Món quà hoàn hảo cho bạn bè.",
-      productName: "Hộp gỗ tre + Thiệp sinh nhật",
-      verified: true,
-      helpful: 15,
-      images: ["/placeholder.svg?height=100&width=100"],
-    },
-    {
-      id: 4,
-      customerName: "Phạm Minh Tuấn",
-      rating: 4,
-      date: "2024-01-08",
-      comment: "Tinh dầu thơm rất tự nhiên, không gắt. Cháy đều và lâu. Giá cả hợp lý. Sẽ giới thiệu cho bạn bè.",
-      productName: "Tinh dầu bạc hà",
-      verified: false,
-      helpful: 6,
-      images: [],
-    },
-    {
-      id: 5,
-      customerName: "Hoàng Thị Lan",
-      rating: 3,
-      date: "2024-01-05",
-      comment: "Sản phẩm ổn nhưng giao hàng hơi chậm. Khuôn nến có một chút khuyết điểm nhỏ nhưng vẫn sử dụng được.",
-      productName: "Khuôn nến hình hoa",
-      verified: true,
-      helpful: 3,
-      images: [],
-    },
-    {
-      id: 6,
-      customerName: "Vũ Đình Khoa",
-      rating: 5,
-      date: "2024-01-03",
-      comment:
-        "Chất lượng tuyệt vời! Màu sắc rất đẹp và bền. Khuôn silicon mềm mại, dễ tháo nến. Rất hài lòng với lần mua hàng này.",
-      productName: "Bộ màu nến 12 màu + Khuôn tròn",
-      verified: true,
-      helpful: 20,
-      images: [
-        "/placeholder.svg?height=100&width=100",
-        "/placeholder.svg?height=100&width=100",
-        "/placeholder.svg?height=100&width=100",
-      ],
-    },
-  ]
+  const reviewOptions = useMemo(() => {
+    const opts: any = { page, limit }
+    if (selectedFilter !== "all") opts.search = undefined // (API chưa filter star, filter client)
+    return opts
+  }, [page, limit, selectedFilter])
 
-  const filteredReviews = reviews.filter((review) => {
-    if (selectedFilter === "all") return true
-    return review.rating === Number.parseInt(selectedFilter)
-  })
+  const {
+    reviews,
+    pagination,
+    isLoading,
+    error,
+    fetchReviews,
+    createReview,
+  } = useReviews(reviewOptions)
 
-  const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-  const ratingDistribution = [5, 4, 3, 2, 1].map((rating) => ({
-    rating,
-    count: reviews.filter((r) => r.rating === rating).length,
-    percentage: (reviews.filter((r) => r.rating === rating).length / reviews.length) * 100,
+  // Filter by star on client (API chưa hỗ trợ filter star)
+  const filteredReviews = selectedFilter === "all"
+    ? reviews
+    : reviews.filter((r) => r.star === Number(selectedFilter))
+
+  // Tổng số review và điểm trung bình
+  const totalReviews = pagination?.total || reviews.length
+  const averageRating =
+    totalReviews > 0 ? (reviews.reduce((sum, r) => sum + (r.star || 0), 0) / reviews.length) : 0
+  const ratingDistribution = [5, 4, 3, 2, 1].map((star) => ({
+    star,
+    count: reviews.filter((r) => r.star === star).length,
+    percentage: reviews.length > 0 ? (reviews.filter((r) => r.star === star).length / reviews.length) * 100 : 0,
   }))
 
-  const handleSubmitReview = (e: React.FormEvent) => {
+  const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("New review:", newReview)
-    // Handle review submission
-    setNewReview({ rating: 5, comment: "", name: "" })
+    try {
+      await createReview(newReview)
+      setNewReview({ star: 5, comment: "", name: "", img_url: "" })
+      fetchReviews(reviewOptions)
+    } catch (err) {
+      // handle error
+    }
   }
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="text-center mb-12">
@@ -137,7 +84,6 @@ export default function ReviewsPage() {
             Xem những đánh giá chân thực từ khách hàng về sản phẩm và dịch vụ của chúng tôi
           </p>
         </div>
-
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Reviews Summary */}
           <div className="lg:col-span-1">
@@ -152,19 +98,16 @@ export default function ReviewsPage() {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`h-5 w-5 ${
-                          i < Math.floor(averageRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                        }`}
+                        className={`h-5 w-5 ${i < Math.floor(averageRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
                       />
                     ))}
                   </div>
-                  <p className="text-gray-600">{reviews.length} đánh giá</p>
+                  <p className="text-gray-600">{totalReviews} đánh giá</p>
                 </div>
-
                 <div className="space-y-2">
-                  {ratingDistribution.map(({ rating, count, percentage }) => (
-                    <div key={rating} className="flex items-center gap-2">
-                      <span className="text-sm w-6">{rating}</span>
+                  {ratingDistribution.map(({ star, count, percentage }) => (
+                    <div key={star} className="flex items-center gap-2">
+                      <span className="text-sm w-6">{star}</span>
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       <div className="flex-1 bg-gray-200 rounded-full h-2">
                         <div className="bg-primary-600 h-2 rounded-full" style={{ width: `${percentage}%` }} />
@@ -173,7 +116,6 @@ export default function ReviewsPage() {
                     </div>
                   ))}
                 </div>
-
                 {/* Write Review Form */}
                 <div className="border-t pt-6">
                   <h3 className="font-semibold mb-4">Viết Đánh Giá</h3>
@@ -194,13 +136,11 @@ export default function ReviewsPage() {
                           <button
                             key={star}
                             type="button"
-                            onClick={() => setNewReview({ ...newReview, rating: star })}
+                            onClick={() => setNewReview({ ...newReview, star })}
                             className="p-1"
                           >
                             <Star
-                              className={`h-6 w-6 ${
-                                star <= newReview.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                              }`}
+                              className={`h-6 w-6 ${star <= newReview.star ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
                             />
                           </button>
                         ))}
@@ -216,15 +156,59 @@ export default function ReviewsPage() {
                         required
                       />
                     </div>
-                    <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700">
-                      Gửi Đánh Giá
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Ảnh (tùy chọn)</label>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          placeholder="URL ảnh"
+                          value={newReview.img_url}
+                          onChange={e => setNewReview({ ...newReview, img_url: e.target.value })}
+                          disabled={uploading}
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          id="review-image-upload"
+                          style={{ display: 'none' }}
+                          disabled={uploading}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            setUploading(true);
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            formData.append('upload_preset', 'bmchien1');
+                            try {
+                              const res = await fetch('https://api.cloudinary.com/v1_1/dukap4zei/image/upload', {
+                                method: 'POST',
+                                body: formData,
+                              });
+                              const data = await res.json();
+                              if (data.secure_url) {
+                                setNewReview(r => ({ ...r, img_url: data.secure_url }));
+                              } else {
+                                alert('Upload thất bại!');
+                              }
+                            } catch (err) {
+                              alert('Lỗi upload ảnh!');
+                            } finally {
+                              setUploading(false);
+                            }
+                          }}
+                        />
+                        <Button type="button" variant="outline" onClick={() => document.getElementById('review-image-upload')?.click()} disabled={uploading}>
+                          {uploading ? (<><Loader2 className="animate-spin w-4 h-4 mr-2 inline" /> Đang upload...</>) : "Tải ảnh lên Cloudinary"}
+                        </Button>
+                      </div>
+                    </div>
+                    <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700" disabled={isLoading}>
+                      {isLoading ? "Đang gửi..." : "Gửi Đánh Giá"}
                     </Button>
                   </form>
                 </div>
               </CardContent>
             </Card>
           </div>
-
           {/* Reviews List */}
           <div className="lg:col-span-2 space-y-6">
             {/* Filter */}
@@ -243,83 +227,73 @@ export default function ReviewsPage() {
                 </SelectContent>
               </Select>
             </div>
-
             {/* Reviews */}
             <div className="space-y-6">
-              {filteredReviews.map((review) => (
-                <Card key={review.id}>
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold">{review.customerName}</h4>
-                          {review.verified && (
-                            <Badge variant="secondary" className="text-xs">
-                              Đã xác minh
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                                }`}
-                              />
-                            ))}
+              {isLoading ? (
+                <div>Đang tải...</div>
+              ) : error ? (
+                <div className="text-red-600">{error}</div>
+              ) : filteredReviews.length === 0 ? (
+                <div className="text-center py-12">
+                  <Star className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 text-lg">Không có đánh giá nào phù hợp với bộ lọc</p>
+                </div>
+              ) : (
+                filteredReviews.map((review) => (
+                  <Card key={review.id}>
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold">{review.name}</h4>
                           </div>
-                          <span className="text-sm text-gray-600">
-                            {new Date(review.date).toLocaleDateString("vi-VN")}
-                          </span>
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 ${i < review.star ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
+                                />
+                              ))}
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">Sản phẩm: {review.productName}</p>
                       </div>
-                    </div>
-
-                    <p className="text-gray-700 mb-4">{review.comment}</p>
-
-                    {review.images.length > 0 && (
-                      <div className="flex gap-2 mb-4">
-                        {review.images.map((image, index) => (
+                      <p className="text-gray-700 mb-4">{review.comment}</p>
+                      {review.img_url && (
+                        <div className="flex gap-2 mb-4">
                           <Image
-                            key={index}
-                            src={image || "/placeholder.svg"}
-                            alt={`Review image ${index + 1}`}
+                            src={review.img_url || "/placeholder.svg"}
+                            alt={`Review image`}
                             width={100}
                             height={100}
                             className="rounded-lg object-cover"
                           />
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <button className="flex items-center gap-1 hover:text-primary-600">
-                        <ThumbsUp className="h-4 w-4" />
-                        Hữu ích ({review.helpful})
-                      </button>
-                      <button className="flex items-center gap-1 hover:text-primary-600">
-                        <MessageCircle className="h-4 w-4" />
-                        Trả lời
-                      </button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
-
-            {filteredReviews.length === 0 && (
-              <div className="text-center py-12">
-                <Star className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">Không có đánh giá nào phù hợp với bộ lọc</p>
+            {/* Pagination */}
+            {pagination && pagination.totalPages > 1 && (
+              <div className="flex justify-center gap-2 mt-8">
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
+                  <Button
+                    key={p}
+                    variant={p === page ? "default" : "outline"}
+                    onClick={() => setPage(p)}
+                    className="px-4"
+                  >
+                    {p}
+                  </Button>
+                ))}
               </div>
             )}
           </div>
         </div>
       </div>
-
       <Footer />
     </div>
   )

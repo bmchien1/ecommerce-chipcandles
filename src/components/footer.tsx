@@ -10,7 +10,7 @@ export function Footer() {
           <div>
             <Link href="/" className="flex items-center space-x-2 mb-4">
               <Flame className="h-8 w-8 text-primary-400" />
-              <span className="text-2xl font-bold">CandleShop</span>
+              <span className="text-2xl font-bold">ChipScendle</span>
             </Link>
             <div className="flex space-x-4">
               <Link href="#" className="text-gray-300 hover:text-primary-400 transition-colors">
@@ -77,22 +77,22 @@ export function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center space-x-3">
                 <MapPin className="h-4 w-4 text-primary-400" />
-                <span className="text-gray-300">123 Đường ABC, Quận 1, TP.HCM</span>
+                <span className="text-gray-300">98 Trung Liệt, Trung Liệt, Đống Đa, Hà Nội</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-primary-400" />
-                <span className="text-gray-300">0123 456 789</span>
+                <span className="text-gray-300">0328658034</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 text-primary-400" />
-                <span className="text-gray-300">info@candleshop.vn</span>
+                <span className="text-gray-300">chienbui10052003@gmail.com</span>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p className="text-gray-300">© 2024 CandleShop. Tất cả quyền được bảo lưu.</p>
+          <p className="text-gray-300">© 2024 ChipScendle. Tất cả quyền được bảo lưu.</p>
         </div>
       </div>
     </footer>

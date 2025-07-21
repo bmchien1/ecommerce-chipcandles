@@ -1,3 +1,5 @@
+'use client'
+
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -5,6 +7,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Palette, Package, Gift, Mail, Sparkles, Star } from "lucide-react"
+import { useProducts } from "@/hooks/useProducts"
+import { useMemo } from "react"
 
 export default function HomePage() {
   const categories = [
@@ -13,7 +17,7 @@ export default function HomePage() {
       name: "Màu Nến",
       description: "Khám phá bảng màu đa dạng cho nến của bạn",
       icon: Palette,
-      image: "/placeholder.svg?height=300&width=300",
+      image: "/color-placeholder.jpg?height=300&width=300",
       href: "/colors",
     },
     {
@@ -21,7 +25,7 @@ export default function HomePage() {
       name: "Khuôn Nến",
       description: "Khuôn đúc nến với nhiều hình dáng độc đáo",
       icon: Package,
-      image: "/placeholder.svg?height=300&width=300",
+      image: "https://res.cloudinary.com/dukap4zei/image/upload/v1753118250/8ce05f58-a22f-439f-bbb6-d9bcf2faef56_slqraf.jpg",
       href: "/molds",
     },
     {
@@ -29,7 +33,7 @@ export default function HomePage() {
       name: "Mùi Hương",
       description: "Tinh dầu thơm cao cấp cho nến của bạn",
       icon: Sparkles,
-      image: "/placeholder.svg?height=300&width=300",
+      image: "/scent-placeholder.png?height=300&width=300",
       href: "/scents",
     },
     {
@@ -37,7 +41,7 @@ export default function HomePage() {
       name: "Hộp Đựng",
       description: "Hộp đựng nến sang trọng và bảo vệ",
       icon: Gift,
-      image: "/placeholder.svg?height=300&width=300",
+      image: "https://res.cloudinary.com/dukap4zei/image/upload/v1753118250/1fbfc2d5-132a-4fd1-88f0-d160385e4618_fd7dq0.jpg",
       href: "/boxes",
     },
     {
@@ -45,7 +49,7 @@ export default function HomePage() {
       name: "Thiệp Tặng",
       description: "Thiệp chúc mừng và tặng kèm đẹp mắt",
       icon: Mail,
-      image: "/placeholder.svg?height=300&width=300",
+      image: "https://res.cloudinary.com/dukap4zei/image/upload/v1753118351/1604a689-181f-449d-8405-37ce786096d9_sfvtzd.jpg",
       href: "/cards",
     },
     {
@@ -53,41 +57,13 @@ export default function HomePage() {
       name: "Đánh Giá",
       description: "Xem đánh giá từ khách hàng",
       icon: Star,
-      image: "/placeholder.svg?height=300&width=300",
+      image: "https://res.cloudinary.com/dukap4zei/image/upload/v1753118414/istockphoto-1050881860-170667a_gb5mdq.jpg",
       href: "/reviews",
     },
   ]
 
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "Màu Xanh Lá Tự Nhiên",
-      price: 35000,
-      image: "/placeholder.svg?height=250&width=250",
-      category: "Màu Nến",
-    },
-    {
-      id: 2,
-      name: "Khuôn Nến Hình Lá",
-      price: 95000,
-      image: "/placeholder.svg?height=250&width=250",
-      category: "Khuôn Nến",
-    },
-    {
-      id: 3,
-      name: "Tinh Dầu Bạc Hà",
-      price: 85000,
-      image: "/placeholder.svg?height=250&width=250",
-      category: "Mùi Hương",
-    },
-    {
-      id: 4,
-      name: "Hộp Tre Eco",
-      price: 65000,
-      image: "/placeholder.svg?height=250&width=250",
-      category: "Hộp Đựng",
-    },
-  ]
+  const featuredOptions = useMemo(() => ({ limit: 4 }), []);
+  const { products: featuredProducts, isLoading: isLoadingFeatured, error: errorFeatured } = useProducts(featuredOptions);
 
   return (
     <div className="min-h-screen bg-background">
@@ -107,21 +83,16 @@ export default function HomePage() {
               </p>
               <div className="flex gap-4">
                 <Button size="lg" className="bg-primary-600 hover:bg-primary-700" asChild>
-                  <Link href="/create-order">Tạo Đơn Hàng</Link>
+                  <Link href="/create-order">Tạo nến thơm của riêng bạn</Link>
                 </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-primary-600 text-primary-600 hover:bg-primary-50 bg-transparent"
-                  asChild
-                >
-                  <Link href="/colors">Xem Màu Sắc</Link>
+                <Button size="lg" variant="outline" className="border-primary-600 text-primary-600 hover:bg-primary-50" asChild>
+                  <Link href="/products">Các sản phẩm</Link>
                 </Button>
               </div>
             </div>
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=500&width=500"
+                src="https://res.cloudinary.com/dukap4zei/image/upload/v1753118699/A_scent_a_day_keeps_the_stress_away_wvo5jv.png"
                 alt="Nến thơm handmade"
                 width={500}
                 height={500}
@@ -180,32 +151,40 @@ export default function HomePage() {
             <p className="text-xl text-gray-600">Những sản phẩm được yêu thích nhất</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProducts.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-300">
-                <CardContent className="p-0">
-                  <div className="relative">
-                    <Image
-                      src={product.image || "/placeholder.svg"}
-                      alt={product.name}
-                      width={250}
-                      height={250}
-                      className="w-full h-64 object-cover rounded-t-lg"
-                    />
-                    <div className="absolute top-4 right-4 bg-primary-600 text-white px-2 py-1 rounded text-sm">
-                      {product.category}
+          {isLoadingFeatured ? (
+            <div>Đang tải...</div>
+          ) : errorFeatured ? (
+            <div className="text-red-600">{errorFeatured}</div>
+          ) : featuredProducts.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">Không tìm thấy sản phẩm nổi bật</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {featuredProducts.slice(0, 4).map((product) => (
+                <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-300">
+                  <CardContent className="p-0">
+                    <div className="relative">
+                      <Image
+                        src={product.img_url || "/placeholder.svg"}
+                        alt={product.name}
+                        width={250}
+                        height={250}
+                        className="w-full h-64 object-cover rounded-t-lg"
+                      />
+                      {/* You can add a category badge here if available */}
                     </div>
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
-                      {product.name}
-                    </h3>
-                    <p className="text-primary-600 font-bold text-lg">{product.price.toLocaleString("vi-VN")}đ</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
+                        {product.name}
+                      </h3>
+                      <p className="text-primary-600 font-bold text-lg">{Number(product.cost).toLocaleString("vi-VN")}đ</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

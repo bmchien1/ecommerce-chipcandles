@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,42 +13,55 @@ import { Textarea } from "@/components/ui/textarea"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { CreditCard, Truck, MapPin } from "lucide-react"
+import { useBills } from '@/hooks/useBills';
+import { useRef } from 'react';
 
 export default function CheckoutPage() {
-  const [paymentMethod, setPaymentMethod] = useState("cod")
+  const [paymentMethod] = useState("bank")
+  const [orderItems, setOrderItems] = useState<any[]>([]);
+  const { createBill, isLoading } = useBills();
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const orderItems = [
-    {
-      id: 1,
-      name: "Nến Thơm Lavender Premium",
-      price: 150000,
-      quantity: 2,
-      category: "Nến Thơm",
-    },
-    {
-      id: 4,
-      name: "Khuôn Nến Hình Trái Tim",
-      price: 85000,
-      quantity: 1,
-      category: "Khuôn Nến",
-    },
-    {
-      id: 7,
-      name: "Bộ Màu Nến 12 Màu",
-      price: 120000,
-      quantity: 1,
-      category: "Màu Nến",
-    },
-  ]
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = JSON.parse(localStorage.getItem('cartOrders') || '[]');
+      setOrderItems(stored);
+    }
+  }, []);
 
-  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const subtotal = orderItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0)
   const shipping = 30000
   const total = subtotal + shipping
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle order submission
-    console.log("Order submitted")
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formRef.current) return;
+    const form = formRef.current;
+    const billData = {
+      firstName: (form.elements.namedItem('firstName') as HTMLInputElement)?.value || '',
+      lastName: (form.elements.namedItem('lastName') as HTMLInputElement)?.value || '',
+      email: (form.elements.namedItem('email') as HTMLInputElement)?.value || '',
+      phone: (form.elements.namedItem('phone') as HTMLInputElement)?.value || '',
+      address: (form.elements.namedItem('address') as HTMLInputElement)?.value || '',
+      city: (form.elements.namedItem('city') as HTMLInputElement)?.value || '',
+      district: (form.elements.namedItem('district') as HTMLInputElement)?.value || '',
+      ward: (form.elements.namedItem('ward') as HTMLInputElement)?.value || '',
+      notes: (form.elements.namedItem('notes') as HTMLTextAreaElement)?.value || '',
+      orderItems,
+      paymentMethod,
+      isPaid: false,
+    };
+    try {
+      await createBill(billData);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('cartOrders');
+      }
+      // Optional: chuyển hướng hoặc thông báo thành công
+      alert('Đặt hàng thành công!');
+      window.location.href = '/';
+    } catch (err) {
+      alert('Có lỗi xảy ra khi đặt hàng.');
+    }
   }
 
   return (
@@ -58,7 +71,7 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Thanh toán</h1>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} ref={formRef}>
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Checkout Form */}
             <div className="space-y-6">
@@ -128,17 +141,9 @@ export default function CheckoutPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                  <RadioGroup value="bank">
                     <div className="flex items-center space-x-2 p-4 border rounded-lg">
-                      <RadioGroupItem value="cod" id="cod" />
-                      <Label htmlFor="cod" className="flex-1 cursor-pointer">
-                        <div className="font-medium">Thanh toán khi nhận hàng (COD)</div>
-                        <div className="text-sm text-gray-600">Thanh toán bằng tiền mặt khi nhận hàng</div>
-                      </Label>
-                    </div>
-
-                    <div className="flex items-center space-x-2 p-4 border rounded-lg">
-                      <RadioGroupItem value="bank" id="bank" />
+                      <RadioGroupItem checked disabled value="bank" id="bank" />
                       <Label htmlFor="bank" className="flex-1 cursor-pointer">
                         <div className="font-medium">Chuyển khoản ngân hàng</div>
                         <div className="text-sm text-gray-600">Chuyển khoản trước khi giao hàng</div>
@@ -146,25 +151,23 @@ export default function CheckoutPage() {
                     </div>
                   </RadioGroup>
 
-                  {paymentMethod === "bank" && (
-                    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                      <h4 className="font-medium mb-2">Thông tin chuyển khoản:</h4>
-                      <div className="text-sm space-y-1">
-                        <p>
-                          <strong>Ngân hàng:</strong> Vietcombank
-                        </p>
-                        <p>
-                          <strong>Số tài khoản:</strong> 1234567890
-                        </p>
-                        <p>
-                          <strong>Chủ tài khoản:</strong> CANDLESHOP VIETNAM
-                        </p>
-                        <p>
-                          <strong>Nội dung:</strong> [Họ tên] - [Số điện thoại]
-                        </p>
-                      </div>
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium mb-2">Thông tin chuyển khoản:</h4>
+                    <div className="text-sm space-y-1">
+                      <p>
+                        <strong>Ngân hàng:</strong> MB Bank
+                      </p>
+                      <p>
+                        <strong>Số tài khoản:</strong> 0036910052003
+                      </p>
+                      <p>
+                        <strong>Chủ tài khoản:</strong> BUI MANH CHIEN
+                      </p>
+                      <p>
+                        <strong>Nội dung:</strong> [Họ tên] - [Số điện thoại]
+                      </p>
                     </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -182,7 +185,6 @@ export default function CheckoutPage() {
                       <div key={item.id} className="flex justify-between items-center">
                         <div className="flex-1">
                           <h4 className="font-medium text-sm">{item.name}</h4>
-                          <p className="text-xs text-gray-600">{item.category}</p>
                           <p className="text-xs text-gray-600">Số lượng: {item.quantity}</p>
                         </div>
                         <div className="text-right">

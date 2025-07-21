@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Search, ShoppingCart, Menu, Flame, Palette, Package, Gift, Mail, Sparkles, Star } from "lucide-react"
+import Image from "next/image"
 
 export function Header() {
   const [cartCount] = useState(0)
@@ -34,8 +35,8 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <Flame className="h-8 w-8 text-primary-600" />
-            <span className="text-2xl font-bold text-gray-900">CandleShop</span>
+            <Image src="https://res.cloudinary.com/dukap4zei/image/upload/v1753118860/A_scent_a_day_keeps_the_stress_away-removebg-preview_lu3fq9.png" alt="Logo" width={70} height={70} className="h-12 w-12 object-contain" />
+            <span className="text-2xl font-bold text-gray-900">ChipScendle</span>
           </Link>
 
           {/* Desktop Navigation */}

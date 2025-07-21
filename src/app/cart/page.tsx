@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
@@ -11,31 +11,35 @@ import { Separator } from "@/components/ui/separator"
 import Image from "next/image"
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Nến Thơm Custom",
-      components: {
-        mold: "Khuôn Hình Trái Tim",
-        color: "Xanh Lá Tự Nhiên",
-        scent: "Tinh Dầu Lavender",
-        box: "Hộp Gỗ Tre Cao Cấp",
-        card: "Thiệp Sinh Nhật Hoa Tươi"
-      },
-      price: 280000,
-      quantity: 1,
-      image: "/placeholder.svg?height=100&width=100",
-    },
-  ])
+  const [cartItems, setCartItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = JSON.parse(localStorage.getItem('cartOrders') || '[]');
+    setCartItems(stored);
+    console.log('Cart Orders:', stored);
+  }, []);
 
   const updateQuantity = (id: number, change: number) => {
-    setCartItems((items) =>
-      items.map((item) => (item.id === id ? { ...item, quantity: Math.max(1, item.quantity + change) } : item)),
-    )
+    setCartItems((items) => {
+      const updated = items.map((item) =>
+        item.id === id ? { ...item, quantity: Math.max(1, item.quantity + change) } : item
+      );
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('cartOrders', JSON.stringify(updated));
+      }
+      return updated;
+    });
   }
 
   const removeItem = (id: number) => {
-    setCartItems((items) => items.filter((item) => item.id !== id))
+    setCartItems((items) => {
+      const updated = items.filter((item) => item.id !== id);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('cartOrders', JSON.stringify(updated));
+      }
+      return updated;
+    });
   }
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -164,7 +168,7 @@ export default function CartPage() {
                 </Button>
 
                 <Button variant="outline" className="w-full bg-transparent" asChild>
-                  <Link href="/products">Tiếp tục mua sắm</Link>
+                  <Link href="/create-order">Tiếp tục mua sắm</Link>
                 </Button>
 
                 <div className="text-sm text-gray-600 text-center">
