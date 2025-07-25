@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,6 +14,7 @@ import { Footer } from "@/components/footer"
 import { CreditCard, Truck, MapPin } from "lucide-react"
 import { useBills } from '@/hooks/useBills';
 import { useRef } from 'react';
+import { toast, Toaster } from 'react-hot-toast';
 
 export default function CheckoutPage() {
   const [paymentMethod] = useState("bank")
@@ -56,17 +56,35 @@ export default function CheckoutPage() {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('cartOrders');
       }
-      // Optional: chuyển hướng hoặc thông báo thành công
-      alert('Đặt hàng thành công!');
-      window.location.href = '/';
+      toast.success('Đặt hàng thành công! Bạn sẽ nhận được email xác nhận sớm.', {
+        duration: 4000,
+        style: {
+          background: '#ffffff',
+          color: '#333',
+          border: '1px solid #f97316', // Matches orange-600
+          padding: '16px',
+        },
+      });
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000); // Redirect after 2 seconds to allow toast visibility
     } catch (err) {
-      alert('Có lỗi xảy ra khi đặt hàng.');
+      toast.error('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.', {
+        duration: 4000,
+        style: {
+          background: '#ffffff',
+          color: '#333',
+          border: '1px solid #dc2626', // Matches red-600 for error
+          padding: '16px',
+        },
+      });
     }
   }
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <Toaster position="top-right" />
 
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Thanh toán</h1>
@@ -215,9 +233,11 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" size="lg">
-                    <Truck className="h-4 w-4 mr-2" />
-                    Đặt hàng
+                  <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                    <Truck className="h-4 w-率先
+
+System: w-4 mr-2" />
+                    {isLoading ? 'Đang xử lý...' : 'Đặt hàng'}
                   </Button>
 
                   <div className="text-xs text-gray-600 text-center">

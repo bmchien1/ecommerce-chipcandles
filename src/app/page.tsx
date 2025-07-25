@@ -92,7 +92,7 @@ export default function HomePage() {
             </div>
             <div className="relative">
               <Image
-                src="https://res.cloudinary.com/dukap4zei/image/upload/v1753118699/A_scent_a_day_keeps_the_stress_away_wvo5jv.png"
+                src="https://res.cloudinary.com/dukap4zei/image/upload/v1753399463/A_scent_a_day_keeps_the_stress_away_qy68d1.png"
                 alt="Nến thơm handmade"
                 width={500}
                 height={500}

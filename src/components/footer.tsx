@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Flame, Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react"
+import Image from "next/image"
 
 export function Footer() {
   return (
@@ -9,14 +10,14 @@ export function Footer() {
           {/* Company Info */}
           <div>
             <Link href="/" className="flex items-center space-x-2 mb-4">
-              <Flame className="h-8 w-8 text-primary-400" />
-              <span className="text-2xl font-bold">ChipScendle</span>
+            <Image src="https://res.cloudinary.com/dukap4zei/image/upload/v1753118860/A_scent_a_day_keeps_the_stress_away-removebg-preview_lu3fq9.png" alt="Logo" width={70} height={70} className="h-12 w-12 object-contain" />
+            <span className="text-2xl font-bold">ChipScendle</span>
             </Link>
             <div className="flex space-x-4">
-              <Link href="#" className="text-gray-300 hover:text-primary-400 transition-colors">
+              <Link href="https://www.facebook.com/nbnm.5803" className="text-gray-300 hover:text-primary-400 transition-colors">
                 <Facebook className="h-5 w-5" />
               </Link>
-              <Link href="#" className="text-gray-300 hover:text-primary-400 transition-colors">
+              <Link href="https://www.instagram.com/chipscendle/" className="text-gray-300 hover:text-primary-400 transition-colors">
                 <Instagram className="h-5 w-5" />
               </Link>
             </div>
@@ -81,11 +82,11 @@ export function Footer() {
               </li>
               <li className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-primary-400" />
-                <span className="text-gray-300">0328658034</span>
+                <span className="text-gray-300">0975886285</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 text-primary-400" />
-                <span className="text-gray-300">chienbui10052003@gmail.com</span>
+                <span className="text-gray-300">chipscendle@gmail.com</span>
               </li>
             </ul>
           </div>

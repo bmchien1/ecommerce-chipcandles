@@ -11,12 +11,16 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Search, Gift, Heart, Star, ShoppingCart } from "lucide-react"
 import { useBoxes } from "@/hooks/useBoxes"
+import { useCategories } from "@/hooks/useCategories"
 
 export default function BoxesPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [page, setPage] = useState(1)
   const [limit] = useState(12)
   const options = useMemo(() => ({ search: searchQuery, page, limit }), [searchQuery, page, limit]);
+
+  // Memoize categories options to prevent unnecessary fetches
+  const categoryOptions = useMemo(() => ({}), []);
   const {
     boxes,
     isLoading,
@@ -24,6 +28,18 @@ export default function BoxesPage() {
     fetchBoxes,
     pagination,
   } = useBoxes(options)
+
+  // Fetch all categories with memoized options
+  const { categories, isLoading: categoriesLoading, error: categoriesError } = useCategories(categoryOptions);
+
+  // Create a map of category ID to category name
+  const categoryMap = useMemo(() => {
+    const map = new Map<number, string>();
+    categories.forEach(category => {
+      map.set(category.id, category.name);
+    });
+    return map;
+  }, [categories]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -101,11 +117,12 @@ export default function BoxesPage() {
                       <p className="text-gray-600 text-sm mb-1">Chất liệu: {box.material}</p>
                       <p className="text-gray-600 text-sm mb-1">Kích thước: {box.size}</p>
                       <p className="text-gray-600 text-sm mb-1">Sức chứa: {box.capacity}</p>
-                      <p className="text-gray-600 text-sm mb-1">Danh mục: {box.categoryId}</p>
+                      {box.categoryId !== 0 && (
+                        <p className="text-gray-600 text-sm mb-1">
+                          Danh mục: {categoriesLoading ? "Đang tải..." : categoriesError ? "Lỗi" : categoryMap.get(box.categoryId) || "Không xác định"}
+                        </p>
+                      )}
                       <p className="text-orange-600 font-bold text-lg mb-4">Giá: {box.cost}đ</p>
-                      <div className="flex gap-2">
-                        <Button className="flex-1">Xem Chi Tiết</Button>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -118,10 +135,10 @@ export default function BoxesPage() {
                     key={i + 1}
                     variant={pagination.page === i + 1 ? "default" : "outline"}
                     onClick={() => handlePageChange(i + 1)}
-                    >
+                  >
                     {i + 1}
-                    </Button>
-                  ))}
+                  </Button>
+                ))}
               </div>
             )}
           </>

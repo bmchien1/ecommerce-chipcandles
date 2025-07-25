@@ -11,6 +11,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Search, Package, Heart, Star, ShoppingCart } from "lucide-react"
 import { useMolds } from "@/hooks/useMolds"
+import { useCategories } from "@/hooks/useCategories"
 
 export default function MoldsPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -18,6 +19,9 @@ export default function MoldsPage() {
   const [limit] = useState(12)
 
   const options = useMemo(() => ({ search: searchQuery, page, limit }), [searchQuery, page, limit]);
+
+  // Memoize categories options to prevent unnecessary fetches
+  const categoryOptions = useMemo(() => ({}), []);
   const {
     molds,
     isLoading,
@@ -25,6 +29,18 @@ export default function MoldsPage() {
     fetchMolds,
     pagination,
   } = useMolds(options)
+
+  // Fetch all categories with memoized options
+  const { categories, isLoading: categoriesLoading, error: categoriesError } = useCategories(categoryOptions);
+
+  // Create a map of category ID to category name
+  const categoryMap = useMemo(() => {
+    const map = new Map<number, string>();
+    categories.forEach(category => {
+      map.set(category.id, category.name);
+    });
+    return map;
+  }, [categories]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -72,7 +88,7 @@ export default function MoldsPage() {
         )}
         {!isLoading && !error && (
           <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl ascend-4 gap-6">
               {molds.map((mold) => (
                 <Card key={mold.id} className="group hover:shadow-lg transition-all duration-300 hover:border-primary-300">
                   <CardContent className="p-0">
@@ -96,18 +112,21 @@ export default function MoldsPage() {
                     </div>
                     <div className="p-4">
                       <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
-                          {mold.name}
-                        </h3>
+                        {mold.name}
+                      </h3>
                       <p className="text-gray-600 text-sm mb-3 line-clamp-2">{mold.description}</p>
+                      {mold.categoryId !== 0 && (
+                        <p className="text-gray-600 text-sm mb-1">
+                          Danh mục: {categoriesLoading ? "Đang tải..." : categoriesError ? "Lỗi" : categoryMap.get(mold.categoryId) || "Không xác định"}
+                        </p>
+                      )}
                       <p className="text-orange-600 font-bold text-lg mb-4">{mold.cost}đ</p>
-                      <div className="flex gap-2">
-                        <Button className="flex-1">Xem Chi Tiết</Button>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
+           　
             {pagination && pagination.totalPages > 1 && (
               <div className="flex justify-center mt-8 gap-2">
                 {Array.from({ length: pagination.totalPages }, (_, i) => (
@@ -115,10 +134,10 @@ export default function MoldsPage() {
                     key={i + 1}
                     variant={pagination.page === i + 1 ? "default" : "outline"}
                     onClick={() => handlePageChange(i + 1)}
-                    >
+                  >
                     {i + 1}
-                    </Button>
-                  ))}
+                  </Button>
+                ))}
               </div>
             )}
           </>
