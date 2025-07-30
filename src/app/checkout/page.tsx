@@ -169,24 +169,6 @@ export default function CheckoutPage() {
                       </Label>
                     </div>
                   </RadioGroup>
-
-                  <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium mb-2">Thông tin chuyển khoản:</h4>
-                    <div className="text-sm space-y-1">
-                      <p>
-                        <strong>Ngân hàng:</strong> Techcombank
-                      </p>
-                      <p>
-                        <strong>Số tài khoản:</strong> 2205082003
-                      </p>
-                      <p>
-                        <strong>Chủ tài khoản:</strong> NGUYEN BUI NGUYET MINH
-                      </p>
-                      <p>
-                        <strong>Nội dung:</strong> [Họ tên] - [Số điện thoại]
-                      </p>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </div>
