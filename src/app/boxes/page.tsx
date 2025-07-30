@@ -114,9 +114,7 @@ export default function BoxesPage() {
                         {box.name}
                       </h3>
                       <p className="text-gray-600 text-sm mb-1">Mô tả: {box.description}</p>
-                      <p className="text-gray-600 text-sm mb-1">Chất liệu: {box.material}</p>
                       <p className="text-gray-600 text-sm mb-1">Kích thước: {box.size}</p>
-                      <p className="text-gray-600 text-sm mb-1">Sức chứa: {box.capacity}</p>
                       {box.categoryId !== 0 && (
                         <p className="text-gray-600 text-sm mb-1">
                           Danh mục: {categoriesLoading ? "Đang tải..." : categoriesError ? "Lỗi" : categoryMap.get(box.categoryId) || "Không xác định"}

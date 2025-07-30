@@ -25,7 +25,7 @@ export default function HomePage() {
       name: "Khuôn Nến",
       description: "Khuôn đúc nến với nhiều hình dáng độc đáo",
       icon: Package,
-      image: "https://res.cloudinary.com/dukap4zei/image/upload/v1753118250/8ce05f58-a22f-439f-bbb6-d9bcf2faef56_slqraf.jpg",
+      image: "https://res.cloudinary.com/dukap4zei/image/upload/v1753368845/d90dd80de87f6121386e_txelbh.jpg",
       href: "/molds",
     },
     {
@@ -49,7 +49,7 @@ export default function HomePage() {
       name: "Thiệp Tặng",
       description: "Thiệp chúc mừng và tặng kèm đẹp mắt",
       icon: Mail,
-      image: "https://res.cloudinary.com/dukap4zei/image/upload/v1753118351/1604a689-181f-449d-8405-37ce786096d9_sfvtzd.jpg",
+      image: "https://res.cloudinary.com/dukap4zei/image/upload/v1753630319/hqmzp8fbnupauzpaxl4p.jpg",
       href: "/cards",
     },
     {
@@ -57,7 +57,7 @@ export default function HomePage() {
       name: "Đánh Giá",
       description: "Xem đánh giá từ khách hàng",
       icon: Star,
-      image: "https://res.cloudinary.com/dukap4zei/image/upload/v1753118414/istockphoto-1050881860-170667a_gb5mdq.jpg",
+      image: "https://res.cloudinary.com/dukap4zei/image/upload/v1753705386/PAFF_030718_fivestarrating-1024x622_embnpt.jpg",
       href: "/reviews",
     },
   ]
@@ -83,7 +83,7 @@ export default function HomePage() {
               </p>
               <div className="flex gap-4">
                 <Button size="lg" className="bg-primary-600 hover:bg-primary-700" asChild>
-                  <Link href="/create-order">Tạo nến thơm của riêng bạn</Link>
+                  <Link href="/create-order">Tạo nến thơm</Link>
                 </Button>
                 <Button size="lg" variant="outline" className="border-primary-600 text-primary-600 hover:bg-primary-50" asChild>
                   <Link href="/products">Các sản phẩm</Link>

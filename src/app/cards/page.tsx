@@ -114,7 +114,7 @@ export default function CardsPage() {
                       <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
                         {card.name}
                       </h3>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{card.description}</p>
+                      <p className="text-gray-600 text-sm mb-3">{card.description}</p>
                       {card.categoryId !== 0 && (
                         <p className="text-gray-600 text-sm mb-1">
                           Danh mục: {categoriesLoading ? "Đang tải..." : categoriesError ? "Lỗi" : categoryMap.get(card.categoryId) || "Không xác định"}

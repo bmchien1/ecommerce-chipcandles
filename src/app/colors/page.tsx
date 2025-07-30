@@ -114,7 +114,6 @@ export default function ColorsPage() {
                       <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
                         {color.name}
                       </h3>
-                      <p className="text-gray-600 text-sm mb-1">Mô tả: {color.description}</p>
                       <p className="text-gray-600 text-sm mb-1">Chất liệu: {color.material}</p>
                       {color.categoryId !== 0 && (
                         <p className="text-gray-600 text-sm mb-1">

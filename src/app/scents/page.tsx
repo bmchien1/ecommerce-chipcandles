@@ -115,9 +115,7 @@ export default function ScentsPage() {
                         {scent.name}
                       </h3>
                       <p className="text-gray-600 text-sm mb-1">Mô tả: {scent.description}</p>
-                      <p className="text-gray-600 text-sm mb-1">Chất liệu: {scent.material}</p>
                       <p className="text-gray-600 text-sm mb-1">Cường độ: {scent.intensity}</p>
-                      <p className="text-gray-600 text-sm mb-1">Sức chứa: {scent.capacity}</p>
                       {scent.categoryId !== 0 && (
                         <p className="text-gray-600 text-sm mb-1">
                           Danh mục: {categoriesLoading ? "Đang tải..." : categoriesError ? "Lỗi" : categoryMap.get(scent.categoryId) || "Không xác định"}

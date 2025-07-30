@@ -59,7 +59,7 @@ export default function MoldsPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Khuôn Nến</h1>
-          <p className="text-gray-600">Khám phá bộ sưu tập khuôn nến chất lượng cao</p>
+          <p className="text-gray-600">Khám phá bộ sưu tập khuôn nến chất lượng cao. Giá của khuôn nến đã được tính theo kích cỡ và số lượng cốt nến cần của từng khuôn</p>
         </div>
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="flex-1">
@@ -114,7 +114,8 @@ export default function MoldsPage() {
                       <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
                         {mold.name}
                       </h3>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{mold.description}</p>
+                      <p className="text-gray-600 text-sm mb-3">{mold.description}</p>
+                      <p className="text-gray-600 text-sm mb-1">Kích cỡ: {mold.size}</p>
                       {mold.categoryId !== 0 && (
                         <p className="text-gray-600 text-sm mb-1">
                           Danh mục: {categoriesLoading ? "Đang tải..." : categoriesError ? "Lỗi" : categoryMap.get(mold.categoryId) || "Không xác định"}

@@ -164,7 +164,8 @@ export default function CheckoutPage() {
                       <RadioGroupItem checked disabled value="bank" id="bank" />
                       <Label htmlFor="bank" className="flex-1 cursor-pointer">
                         <div className="font-medium">Chuyển khoản ngân hàng</div>
-                        <div className="text-sm text-gray-600">Chuyển khoản trước khi giao hàng</div>
+                        <div className="text-sm text-gray-600">Bạn có thể cọc trước 50% hoá đơn, chúng tôi sẽ xác nhận đơn hàng sớm nhất</div>
+                        <div className="text-sm text-gray-600">Hoặc có thể đặt hàng và đợi liên hệ từ chúng tôi</div>
                       </Label>
                     </div>
                   </RadioGroup>
@@ -173,13 +174,13 @@ export default function CheckoutPage() {
                     <h4 className="font-medium mb-2">Thông tin chuyển khoản:</h4>
                     <div className="text-sm space-y-1">
                       <p>
-                        <strong>Ngân hàng:</strong> MB Bank
+                        <strong>Ngân hàng:</strong> Techcombank
                       </p>
                       <p>
-                        <strong>Số tài khoản:</strong> 0036910052003
+                        <strong>Số tài khoản:</strong> 2205082003
                       </p>
                       <p>
-                        <strong>Chủ tài khoản:</strong> BUI MANH CHIEN
+                        <strong>Chủ tài khoản:</strong> NGUYEN BUI NGUYET MINH
                       </p>
                       <p>
                         <strong>Nội dung:</strong> [Họ tên] - [Số điện thoại]
