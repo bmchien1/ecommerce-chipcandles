@@ -149,28 +149,6 @@ export default function CheckoutPage() {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Payment Method */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5" />
-                    Phương thức thanh toán
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RadioGroup value="bank">
-                    <div className="flex items-center space-x-2 p-4 border rounded-lg">
-                      <RadioGroupItem checked disabled value="bank" id="bank" />
-                      <Label htmlFor="bank" className="flex-1 cursor-pointer">
-                        <div className="font-medium">Chuyển khoản ngân hàng</div>
-                        <div className="text-sm text-gray-600">Bạn có thể cọc trước 50% hoá đơn, chúng tôi sẽ xác nhận đơn hàng sớm nhất</div>
-                        <div className="text-sm text-gray-600">Hoặc có thể đặt hàng và đợi liên hệ từ chúng tôi</div>
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </CardContent>
-              </Card>
             </div>
 
             {/* Order Summary */}

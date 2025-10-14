@@ -118,20 +118,6 @@ export default function CreateOrderPage() {
       // Bước chọn loại sản phẩm (nến thơm/sáp thơm)
       return (
         <div className="flex flex-col gap-6">
-          <div className="flex gap-4 justify-center mb-6">
-            <Button
-              variant={selectedItems.productType === "candle" ? "default" : "outline"}
-              onClick={() => handleSelectProductType("candle")}
-            >
-              Nến thơm
-            </Button>
-            <Button
-              variant={selectedItems.productType === "wax" ? "default" : "outline"}
-              onClick={() => handleSelectProductType("wax")}
-            >
-              Sáp thơm
-            </Button>
-          </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {loadingMolds ? (
               <div>Đang tải khuôn...</div>
@@ -330,7 +316,7 @@ export default function CreateOrderPage() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Tạo Đơn Hàng Nến Thơm</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Tạo Nến Thơm Tuỳ Chỉnh</h1>
           <p className="text-gray-600">Tạo ra chiếc nến thơm độc đáo theo ý thích của bạn</p>
         </div>
 
